@@ -1,0 +1,17 @@
+{
+  "name": "majortom-scripting",
+  "version": "0.1.0",
+  "description": "Scripting library for Major Tom",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Dmitry White <white.dmitry@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "lodash.get": "^4.4.2",
+    "lodash.sortby": "^4.7.0"
+  }
+}
