@@ -27,7 +27,7 @@ Instantiates the Major Top Script singleton
 * `token: string` Your script's unique token
 * `mission?: string|number` Optionally set the mission ID on instantiation
 
-### `MajortomScript`
+## `MajortomScript`
 
 #### `MajortomScript.setMission(id: string|number): MajortomScript`
 The mission that this script is interacting with can be changed as needed
@@ -38,7 +38,7 @@ Retrieve a Satellite object using one of name, database ID, or NORAD ID
 `input: object`
 * `name?: string` The unique satellite name in Major Tom
 * `id?: string|number` The Major Tom database ID; can be found in the Major Tom url
-* `noradId: string|number` The satellite's NORAD ID
+* `noradId?: string|number` The satellite's NORAD ID
 
 #### `MajortomScript.getCommandDefinitions(satellite: Satellite): Promise<CommandDefinition[]>`
 Retrieve all the command definitions for the passed satellite
@@ -76,7 +76,7 @@ Some aspects of the method's behavior can be defined:
 * `maxWaitTime: number` The maximum time to wait for each command to resolve; defaults to 90 seconds
 * `continuePastFailures: boolean` If true, will continue attempting to execute each command even if the command times out or resolves to `"failed"` or `"cancelled"`
 
-### `Satellite`
+## `Satellite`
 
 #### `Satellite.getQueuedCommands(): Promise<Command[]>`
 Resolves an Array of all queued Command objects for the Satellite
@@ -104,7 +104,7 @@ Retrieves the next available pass for this satellite
 #### `Satellite.getNextPass(): Promise<Pass>`
 Retrieves the next pass for the satellite, whether scheduled, available, or in any other state
 
-### `Command`
+## `Command`
 
 #### `Command.setGateway(gateway: number|Gateway): Command`
 Associate the command with a gateway using either the gateway database ID or a Gateway object
@@ -124,7 +124,7 @@ Returns a string representation of the command's important properties, formatted
 #### `Command.getVariables(): object.<string, number|string>`
 Returns an object representation of the command's important properties, formatted for use by the script library's GQL mutations
 
-#### `Command` Properties
+### `Command` Properties
 ##### `systemId: number|string` The id of the command's system
 ##### `commandDefinitionId: number|string` The id of the command's command definition
 ##### `fields: string` A JSON string representing the command's field values
@@ -135,7 +135,7 @@ Returns an object representation of the command's important properties, formatte
 ##### `output: string (Read Only)` The command's most recent known Major Tom output
 ##### `payload: string (Read Only)` The command's most recent known Major Tom payload
 
-### `Gateway`
+## `Gateway`
 
 #### `Gateway.getRecentCommands(options?: object): Promise<Command[]>`
 Resolves a list of commands in Major Tom sent through this gateway for a given time period
@@ -146,9 +146,9 @@ Resolves a list of commands in Major Tom sent through this gateway for a given t
 
 For example, submitting an `options` object `{ hours: 10, ending: 5 }` will return any commands sent through this gateway that occurred betweein 15 hours ago and 5 hours ago.
 
-### `Pass`
+## `Pass`
 
-#### `Pass` Properties
+### `Pass` Properties
 ##### `id: number|string` The pass's database ID
 ##### `duration: number` The pass's duration in milliseconds
 ##### `start: number` The pass's start in milliseconds from UNIX epoch
@@ -157,9 +157,9 @@ For example, submitting an `options` object `{ hours: 10, ending: 5 }` will retu
 ##### `satelliteId: number|string` The pass's satellite's database ID
 ##### `scheduledStatus: string` The pass's last known Major Tom scheduled status
 
-### `EventObject`
+## `EventObject`
 
-#### `EventObject` Properties
+### `EventObject` Properties
 
 ##### `id: number` The event's database ID
 ##### `debug: string` The event's debug string
@@ -169,3 +169,25 @@ For example, submitting an `options` object `{ hours: 10, ending: 5 }` will retu
 ##### `level: string` The event's level
 ##### `commandId: number` The command associated with the event, if any
 ##### `createdAt: number` The timestamp of the event's creation in milliseconds from UNIX epoch
+
+## `CommandDefinition`
+
+### `CommandDefinition` Properties
+##### `id: string` The command definition's database ID
+##### `commandType: string` The command definition's type string
+##### `displayName: string` The command definition's display name
+##### `description: string` The command description
+##### `tags: string[]` The list of command tags
+##### `fields: Field[]` The field objects for this command
+
+## Field
+
+### `Field` Properties
+
+##### `name: string` The name of the command field
+##### `type: "integer"|"float"|"enum"|"string"|"text"|"datetime"|"boolean"` One of the field type descriptors
+##### `value?: string|number` A constant value that the field must always take
+##### `default?: string|number` The default, placeholder, or starting value for a field that can be changed
+##### `characterLimit?: number` A number indicating the character limit for a string or text field
+##### `range?: number[]|string[]`
+##### `enum?: object.<string, number>` An object whose keys are string descriptions of their integer values. Values do not need to be sequential. Required if type is enum, ignored otherwise.
