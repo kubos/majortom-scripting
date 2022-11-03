@@ -98,11 +98,15 @@ Resolves a list of events in Major Tom related to this system for a given time p
 
 For example, submitting an `options` object `{ hours: 10, ending: 5 }` will return any events for the system that occurred betweein 15 hours ago and 5 hours ago.
 
-#### `Satellite.getNextAvailablePass(): Promise<Pass>`
-Retrieves the next available pass for this satellite
+#### `Satellite.getNextAvailablePass(groundStationId?: number|string): Promise<Pass|null>`
+Retrieves the next available pass for this satellite. If `groundStationId` is provided, retrieves the next available pass for this satellite over the identified ground station.
 
-#### `Satellite.getNextPass(): Promise<Pass>`
-Retrieves the next pass for the satellite, whether scheduled, available, or in any other state
+`groundStationId?: number|string` The database ID of the ground station to filter for
+
+#### `Satellite.getNextPass(groundStationId?: number|string): Promise<Pass|null>`
+Retrieves the next pass for the satellite, whether scheduled, available, or in any other state. If `groundStationId` is provided, retrieves the next pass in any state for this satellite over the identified ground station.
+
+`groundStationId?: number|string` The database ID of the ground station to filter for
 
 ## `Command`
 

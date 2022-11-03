@@ -198,9 +198,12 @@ class Satellite {
 	}
 
 	/**
-	 * @returns {Promise<Pass>}
+	 * Gets next available pass for this satellite. If groundStationId parameter is provided, retrieves
+	 * the next available pass for this satellite over the identified ground station.
+	 * @param {number|string} groundStationId
+	 * @returns {Promise<Pass|null>}
 	 */
-	getNextAvailablePass() {
+	getNextAvailablePass(groundStationId) {
 		return new Promise((resolve, reject) => {
 			const query = `
 				query GetNextPass {
@@ -222,9 +225,17 @@ class Satellite {
 				.then(({ data }) => {
 					const now = Date.now();
 					const passes = data.data.system.passes.nodes;
-					const pass = passes
+					const pass = (
+						Number.isInteger(Number(groundStationId))
+							? passes.filter(({ groundStationId: passGs }) => Number(passGs) === Number(groundStationId))
+							: passes
+					)
 						.reverse()
 						.find(({ start, scheduledStatus }) => (start > now && scheduledStatus === 'available'));
+
+					if (!pass) {
+						resolve(null);
+					}
 
 					resolve(new Pass({
 						...pass, ...this.credentials(), satelliteId: `${this.id}`,
@@ -237,9 +248,13 @@ class Satellite {
 	}
 
 	/**
-	 * @returns {Promise<Pass>}
+	 * Gets the next pass regardless of scheduled status for this satellite. If the groundStationId
+	 * parameter is provided, gets the next pass of this satellite over the identified ground
+	 * station.
+	 * @param {number|string} groundStationId
+	 * @returns {Promise<Pass|null>}
 	 */
-	getNextPass() {
+	getNextPass(groundStationId) {
 		return new Promise((resolve, reject) => {
 			const query = `
 				query GetNextPass {
@@ -261,7 +276,12 @@ class Satellite {
 				.then(({ data }) => {
 					const now = Date.now();
 					const passes = data.data.system.passes.nodes;
-					const pass = passes.reverse().find(({ start }) => start > now);
+					const pass = (
+						Number.isInteger(Number(groundStationId))
+							? passes.filter(({ groundStationId: passGs }) => Number(passGs) === Number(groundStationId))
+							: passes
+					)
+						.reverse().find(({ start }) => start > now);
 
 					resolve(new Pass({
 						...pass, ...this.credentials(), satelliteId: `${this.id}`,
