@@ -29,8 +29,8 @@ Instantiates the Major Top Script singleton
 
 ## `MajortomScript`
 
-#### `MajortomScript.setMission(id: string|number): MajortomScript`
-The mission that this script is interacting with can be changed as needed
+#### `MajortomScript.getMissionId(): Promise<number>`
+Retrieve the ID of the mission that this script is interacting with
 
 #### `MajortomScript.getSatellite(input: object): Promise<Satellite>`
 Retrieve a Satellite object using one of name, database ID, or NORAD ID

@@ -7,27 +7,42 @@ const typesDoMatch = require('./src/utils/typesDoMatch');
 
 const FINAL_STATES = ['cancelled', 'failed', 'completed'];
 
-const mts = ({ host, token, mission }) => {
+const mts = ({ host, token }) => {
+	let mission;
+
 	if (!(host && token)) {
 		throw new Error('Script instance requires a value for `host` `token` and `mission`');
 	}
 
 	const makeGqlReq = createGqlReq(host, token);
 
-	/**
-	 * @param {number} nextMission
-	 */
-	const setMission = nextMission => {
-		if (Number.isNaN(Number(nextMission))) {
-			throw new Error('Method `setMission` must be provided a mission number as its only argument');
-		}
+	const getMissionId = () => new Promise((resolve, reject) => {
+		const query = `
+			query Mission {
+				agent {
+					script {
+						mission { id }
+					}
+				}
+			}
+		`;
 
-		const { setMission, ...nextSurface } = surface;
+		makeGqlReq({ query })
+			.then(result => {
+				const missionId = get(result, 'data.data.agent.script.mission.id');
 
-		mission = nextMission;
+				if (!missionId) {
+					return reject(new Error('Could not get mission ID'));
+				}
 
-		return nextSurface;
-	};
+				mission = missionId;
+
+				resolve(missionId);
+			})
+			.catch(err => {
+				reject(err);
+			});
+	});
 
 	/**
 	 * @param {object} input
@@ -418,8 +433,10 @@ const mts = ({ host, token, mission }) => {
 		resolve(resolvedCommands);
 	});
 
+	getMissionId();
+
 	const surface = {
-		setMission,
+		getMissionId,
 		getSatellite,
 		getCommandDefinitions,
 		createCommand,
