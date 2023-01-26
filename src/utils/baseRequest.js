@@ -5,9 +5,16 @@ const axios = require('axios');
 
 class AxiosPacer extends Writable {
 	constructor(host, headers) {
+		console.log('constructing a pacer class');
 		super({ objectMode: true });
 		this.headers = headers;
 		this.host = host;
+		this.nextSend = Date.now();
+	}
+
+	setCxProps(host, headers) {
+		this.host = host;
+		this.headers = headers;
 	}
 
 	_write(writeObj, _, next) {
@@ -33,9 +40,13 @@ class AxiosPacer extends Writable {
 				const { status, data } = err.response || {};
 
 				if (status === 420 && data && data.retryAfter) {
+					const waitMs = data.retryAfter * 1000;
+
+					this.nextSend = Date.now() + waitMs;
+
 					setTimeout(() => {
 						this.interact(id, body, done);
-					}, data.retryAfter * 1000);
+					}, waitMs);
 				} else {
 					console.error(err);
 					this.emit(id, err);
@@ -55,13 +66,16 @@ const makeGqlReq = (host, token) => body => {
 	return axios.post(`https://${host}/script_api/v1/graphql`, body, { headers });
 };
 
+const pacer = new AxiosPacer();
+
 const bakeGqlReq = (host, token) => {
 	const headers = {
 		'X-Script-Token': token,
 		'Content-Type': 'application/json',
 		Accept: 'application/json',
 	};
-	const pacer = new AxiosPacer(host, headers);
+
+	pacer.setCxProps(host, headers);
 
 	return body => new Promise((resolve, reject) => {
 		const myReq = crypto.randomUUID();

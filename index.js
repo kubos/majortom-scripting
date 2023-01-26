@@ -45,6 +45,55 @@ const mts = ({ host, token }) => {
 	});
 
 	/**
+	 * Retrieve the most recent value for a subsystem metric on a Satellite.
+	 * @param {object} input
+	 * @param {string|number} input.system
+	 * @param {string} input.subsystem
+	 * @param {string} input.metric
+	 * @returns {Promise<number>}
+	 */
+	const getLatestMetricValue = input => new Promise((resolve, reject) => {
+		const params = ['system', 'subsystem', 'metric'];
+
+		params.forEach(key => {
+			if (!input[key]) {
+				return reject(new Error(`Property ${key} is required on input to getLatestMetricValue`));
+			}
+		});
+
+		const { system, subsystem, metric } = input;
+		const systemSpec = typeof system === 'number' ? `id:${system}` : `name:"${system}", missionId:${mission}`;
+		const query = `
+query GetLatestTelem {
+	system(${systemSpec}) {
+		subsystems(filters:{name:"${subsystem}"}) {
+			nodes {
+				metrics(filters:{name:"${metric}"}) {
+					nodes {
+						latest {
+							value
+						}
+					}
+				}
+			}
+		}
+	}
+}
+		`.trim();
+
+		makeGqlReq({ query })
+			.then(result => {
+				const { value } = get(result, 'data.system.subsystems.nodes[0].metrics.nodes[0].latest');
+
+				if (!value) {
+					return reject(new Error(`Could not get value ${subsystem}.${metric} for satellite ${typeof system === 'number' ? 'ID ' : ''}${system}`));
+				}
+
+				resolve(value);
+			});
+	});
+
+	/**
 	 * @param {object} input
 	 * @param {string} input.name
 	 * @param {string|number} input.id
@@ -122,8 +171,10 @@ const mts = ({ host, token }) => {
 					);
 				}
 
+				const parsedFields = JSON.parse(defMatch.fields);
+
 				Object.entries(fields).forEach(([fieldName, fieldValue]) => {
-					const fieldDef = JSON.parse(defMatch.fields).find(({ name }) => name === fieldName);
+					const fieldDef = parsedFields.find(({ name }) => name === fieldName);
 					const typeMatches = fieldDef && typesDoMatch(fieldValue, typeof fieldValue, fieldDef.type);
 
 					if (!(fieldDef && typeMatches)) {
@@ -299,7 +350,7 @@ const mts = ({ host, token }) => {
 							})
 							.catch(err => reject(err));
 					}
-				}, 1000);
+				}, 200);
 			})
 			.catch(err => {
 				reject(err);
@@ -438,6 +489,7 @@ const mts = ({ host, token }) => {
 	const surface = {
 		getMissionId,
 		getSatellite,
+		getLatestMetricValue,
 		getCommandDefinitions,
 		createCommand,
 		executeCommand,

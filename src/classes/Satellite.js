@@ -15,9 +15,9 @@ class Satellite {
 	 * @param {string|number} param0.mission
 	 */
 	constructor({ id, noradId, name, host, token, mission }) {
-		if (!(id && noradId && name)) {
-			throw new Error('Cannot instantiate Satellite; ID, Norad ID, and name are all required');
-		}
+		// if (!(id && noradId && name)) {
+		// 	throw new Error('Cannot instantiate Satellite; ID, Norad ID, and name are all required');
+		// }
 
 		/**
 		 * @member {number}
@@ -92,7 +92,7 @@ class Satellite {
 
 			this.makeReq({ query })
 				.then(({ data }) => {
-					const { files } = data.data.system.remoteFileList;
+					const { files } = data.data.system.remoteFileList || {};
 
 					try {
 						resolve(JSON.parse(files));
