@@ -40,7 +40,7 @@ Retrieve a Satellite object using one of name, database ID, or NORAD ID
 * `id?: string|number` The Major Tom database ID; can be found in the Major Tom url
 * `noradId?: string|number` The satellite's NORAD ID
 
-#### `MajortomScript.getLatestMetricValue(input: object): Promise<number>`
+#### `MajortomScript.getLatestMetricValue(input: object): Promise<{ value: number, timestamp: number }>`
 Retrieve the most recent value for a subsystem metric on a Satellite
 
 `input: object`

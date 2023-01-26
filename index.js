@@ -50,7 +50,7 @@ const mts = ({ host, token }) => {
 	 * @param {string|number} input.system
 	 * @param {string} input.subsystem
 	 * @param {string} input.metric
-	 * @returns {Promise<number>}
+	 * @returns {Promise<{ value: number, timestamp: number }>}
 	 */
 	const getLatestMetricValue = input => new Promise((resolve, reject) => {
 		const params = ['system', 'subsystem', 'metric'];
@@ -72,6 +72,7 @@ query GetLatestTelem {
 					nodes {
 						latest {
 							value
+							timestamp
 						}
 					}
 				}
@@ -83,13 +84,14 @@ query GetLatestTelem {
 
 		makeGqlReq({ query })
 			.then(result => {
-				const { value } = get(result, 'data.system.subsystems.nodes[0].metrics.nodes[0].latest');
+				const result = get(result, 'data.system.subsystems.nodes[0].metrics.nodes[0].latest');
+				const { value, timestamp } = result || {};
 
-				if (!value) {
+				if (!result) {
 					return reject(new Error(`Could not get value ${subsystem}.${metric} for satellite ${typeof system === 'number' ? 'ID ' : ''}${system}`));
 				}
 
-				resolve(value);
+				resolve({ value, timestamp });
 			});
 	});
 
