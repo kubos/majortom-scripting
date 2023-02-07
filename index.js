@@ -351,14 +351,15 @@ query GetLatestTelem {
 								}
 
 								if (FINAL_STATES.includes(state)) {
+									clearInterval(updateInterval);
+
 									return resolve(command.setFinalState(state));
 								}
 							})
-							.catch(err => reject(err))
-							.finally(() => {
+							.catch(err => {
 								clearInterval(updateInterval);
+								reject(err)
 							});
-
 					}
 				}, 200);
 			})
