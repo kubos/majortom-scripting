@@ -333,7 +333,7 @@ query GetLatestTelem {
 					}
 				`.trim();
 
-				setInterval(() => {
+				const updateInterval = setInterval(() => {
 					if (Date.now() - lastUpdateTime > maxWaitTime) {
 						reject(
 							new Error(
@@ -354,7 +354,11 @@ query GetLatestTelem {
 									return resolve(command.setFinalState(state));
 								}
 							})
-							.catch(err => reject(err));
+							.catch(err => reject(err))
+							.finally(() => {
+								clearInterval(updateInterval);
+							});
+
 					}
 				}, 200);
 			})
