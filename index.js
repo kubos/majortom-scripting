@@ -84,11 +84,15 @@ query GetLatestTelem {
 
 		makeGqlReq({ query })
 			.then(result => {
-				const result = get(result, 'data.system.subsystems.nodes[0].metrics.nodes[0].latest');
+				const result = get(result, 'data.data.system.subsystems.nodes[0].metrics.nodes[0].latest');
 				const { value, timestamp } = result || {};
 
 				if (!result) {
-					return reject(new Error(`Could not get value ${subsystem}.${metric} for satellite ${typeof system === 'number' ? 'ID ' : ''}${system}`));
+					return reject(
+						new Error(
+							`Could not get value ${subsystem}.${metric} for satellite ${typeof system === 'number' ? 'ID ' : ''}${system}`
+						)
+					);
 				}
 
 				resolve({ value, timestamp });
