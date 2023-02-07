@@ -105,7 +105,7 @@ class Satellite {
 	}
 
 	/**
-	 * @returns {Promise<any[]>}
+	 * @returns {Promise<StagedFile[]>}
 	 */
 	getStagedFiles() {
 		return new Promise((resolve, reject) => {
