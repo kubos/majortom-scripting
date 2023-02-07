@@ -1,6 +1,6 @@
 {
   "name": "majortom-scripting",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Scripting library for Major Tom",
   "main": "index.js",
   "scripts": {
